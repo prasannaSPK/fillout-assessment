@@ -4,7 +4,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Fillout.com API endpoint
-const FILLOUT_API_URL = 'https://api.fillout.com';
+const FILLOUT_API_URL = 'https://api.fillout.com/v1/api/forms';
 
 // Fillout.com API key
 const FILLOUT_API_KEY = 'sk_prod_TfMbARhdgues5AuIosvvdAC9WsA5kXiZlW8HZPaRDlIbCpSpLsXBeZO7dCVZQwHAY3P4VSBPiiC33poZ1tdUj2ljOzdTCCOSpUZ_3912';
@@ -44,10 +44,12 @@ app.get('/:formId/filteredResponses', async (req, res) => {
     }
 
     // Prepare request to Fillout.com API
-    const response = await axios.get(`${FILLOUT_API_URL}/forms/${formId}/responses`, {
+    const response = await axios.get(`${FILLOUT_API_URL}/${formId}`, {
       headers: { Authorization: `Bearer ${FILLOUT_API_KEY}` },
       params: { page, pageSize }
     });
+
+    console.log(response)
 
     // Apply filters to form responses
     let filteredResponses = response.data.responses;
