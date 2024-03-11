@@ -49,10 +49,10 @@ app.get('/:formId/filteredResponses', async (req, res) => {
       params: { page, pageSize }
     });
 
-    console.log(response)
+    console.log('final response', response.data.questions)
 
     // Apply filters to form responses
-    let filteredResponses = response.data.responses;
+    let filteredResponses = response.data.questions;
     if (filters) {
       const parsedFilters = JSON.parse(filters);
       filteredResponses = applyFilters(filteredResponses, parsedFilters);
@@ -66,7 +66,7 @@ app.get('/:formId/filteredResponses', async (req, res) => {
     });
   } catch (error) {
     // Handle errors
-    console.error('Error fetching form responses:', error);
+    // console.error('Error fetching form responses:', error);
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
