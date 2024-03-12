@@ -13,21 +13,25 @@ const FILLOUT_API_KEY = 'sk_prod_TfMbARhdgues5AuIosvvdAC9WsA5kXiZlW8HZPaRDlIbCpS
 const applyFilters = (responses, filters) => {
   return responses.filter(response => {
     return filters.every(filter => {
-      const question = response.questions.find(q => q.id === filter.id);
-      if (!question) return false;
-
-      switch (filter.condition) {
-        case 'equals':
-          return question.value === filter.value;
-        case 'does_not_equal':
-          return question.value !== filter.value;
-        case 'greater_than':
-          return question.value > filter.value;
-        case 'less_than':
-          return question.value < filter.value;
-        default:
-          return false;
+      if (response.id === filter.id) {
+        switch (filter.condition) {
+          case 'equals':
+            if (response.type === 'MultipleChoice') {
+              return response.options.some(option => option.value === filter.value);
+            } else {
+              return response.name === filter.value;
+            }
+          case 'does_not_equal':
+            if (response.type === 'MultipleChoice') {
+              return !response.options.some(option => option.value === filter.value);
+            } else {
+              return response.name !== filter.value;
+            }
+          default:
+            return false;
+        }
       }
+      return true;
     });
   });
 };
@@ -49,12 +53,12 @@ app.get('/:formId/filteredResponses', async (req, res) => {
       params: { page, pageSize }
     });
 
-    console.log('final response', response.data.questions)
+    console.log('final response', response.data.questions);
 
     // Apply filters to form responses
     let filteredResponses = response.data.questions;
     if (filters) {
-      const parsedFilters = JSON.parse(filters);
+      const parsedFilters = JSON.parse(decodeURIComponent(filters));
       filteredResponses = applyFilters(filteredResponses, parsedFilters);
     }
 
@@ -66,7 +70,6 @@ app.get('/:formId/filteredResponses', async (req, res) => {
     });
   } catch (error) {
     // Handle errors
-    // console.error('Error fetching form responses:', error);
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
