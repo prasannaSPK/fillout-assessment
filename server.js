@@ -27,6 +27,10 @@ const applyFilters = (responses, filters) => {
             } else {
               return response.name !== filter.value;
             }
+          case 'greater_than':
+            return response.name > filter.value;
+          case 'less_than':
+            return response.name < filter.value;
           default:
             return false;
         }
@@ -53,14 +57,17 @@ app.get('/:formId/filteredResponses', async (req, res) => {
       params: { page, pageSize }
     });
 
-    console.log('final response', response.data.questions);
+    
 
     // Apply filters to form responses
     let filteredResponses = response.data.questions;
     if (filters) {
       const parsedFilters = JSON.parse(decodeURIComponent(filters));
       filteredResponses = applyFilters(filteredResponses, parsedFilters);
+      console.log('filter response', filteredResponses);
     }
+
+    
 
     // Send the filtered responses
     res.json({
